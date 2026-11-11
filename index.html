@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#050709" />
+    <meta name="description" content="Your global stock watchlist. Explore 500 AI, IT, defence and medical companies with market-cap heatmaps and price comparisons." />
+    <title>Stock Atlas | Your market dashboard</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="masthead">
+        <a class="brand" href="./"><span class="brand-icon" aria-hidden="true">$</span> STOCK <strong>ATLAS</strong></a>
+        <span class="edition">AI / IT / DEFENCE / MEDICAL</span>
+        <a class="watchlist-link" href="#stock-manager">Customize your watchlist ↗</a>
+      </header>
+      <main>
+        <section class="intro">
+          <div><p class="eyebrow">GLOBAL MARKETS. YOUR PERSPECTIVE.</p><h1>Your edge.<br><span>Your atlas.</span></h1><p class="subtitle">500 companies. Four sectors. One watchlist that’s yours.</p></div>
+          <div class="update"><span id="updated">Loading market data...</span><span>Global equities · Market-cap weighted · USD</span></div>
+        </section>
+        <div id="notice" role="status" hidden></div>
+        <section class="overview" aria-label="Market summary" id="overview"></section>
+        <details id="stock-manager" class="stock-manager">
+          <summary><span><span class="eyebrow">MAKE IT YOURS</span><strong>Choose your companies</strong></span><span id="watchlist-count">30 / 30 selected</span></summary>
+          <div class="manager-body">
+            <section class="portfolio-picker" aria-labelledby="portfolio-title">
+              <div><p class="eyebrow">FOLLOW A PORTFOLIO</p><h3 id="portfolio-title">Your picks. Or the world's portfolios.</h3></div>
+              <label>Dashboard portfolio<select id="portfolio-select"><option value="custom">My personal watchlist</option></select></label>
+              <p id="portfolio-description" class="manager-description">Choose a preset to follow its top 30 tickered holdings automatically. Switch back to keep editing your personal watchlist.</p>
+              <div id="portfolio-info" hidden>
+                <p id="portfolio-status" role="status"></p>
+                <p id="portfolio-coverage"></p>
+                <details class="holdings-details"><summary id="holdings-summary">All reported holdings</summary>
+                  <label class="holdings-search">Find a holding<input id="holdings-search" type="search" placeholder="Search portfolio holdings…" autocomplete="off"></label>
+                  <div class="catalog-scroll"><table class="catalog-table"><caption class="sr-only">All reported holdings in this portfolio</caption><thead><tr><th>Company</th><th>Ticker</th><th>Reported weight</th><th>Dashboard</th></tr></thead><tbody id="holdings-rows"></tbody></table></div>
+                </details>
+                <details class="holdings-details"><summary>Changes since previous checks</summary><div id="portfolio-changes"></div></details>
+              </div>
+            </section>
+            <p class="manager-description">Explore 500 global AI, IT, defence and medical companies. Build a focused watchlist of 20–30 stocks (30 maximum). Your choices stay in this browser; other visitors have their own watchlists.</p>
+            <div class="catalog-filters">
+              <label class="search-field">Find a company<input id="catalog-search" type="search" placeholder="Search name, ticker or country…" autocomplete="off"></label>
+              <label>Sector<select id="catalog-sector"><option value="all">All sectors</option><option value="ai">AI &amp; technology</option><option value="it">IT &amp; software</option><option value="defence">Defence &amp; aerospace</option><option value="medical">Medical &amp; healthcare</option></select></label>
+              <label>Country<select id="catalog-country"><option value="all">All countries</option></select></label>
+              <label class="selected-only"><input id="catalog-selected" type="checkbox"> Selected only</label>
+            </div>
+            <div class="selection-toolbar"><span id="catalog-results" aria-live="polite"></span><button id="reset-watchlist" class="text-button">Restore default 30</button></div>
+            <p id="selection-notice" role="status" hidden></p>
+            <div id="selected-stocks" class="selected-stocks" aria-label="Your selected stocks"></div>
+            <div class="catalog-scroll"><table class="catalog-table"><caption class="sr-only">Global company directory; select up to 30 for your dashboard</caption><thead><tr><th scope="col">Track</th><th scope="col">Company</th><th scope="col">Sector / country</th><th scope="col">Market cap</th><th scope="col">Day</th><th scope="col">Week</th></tr></thead><tbody id="catalog-rows"></tbody></table></div>
+            <div class="catalog-pagination"><button id="catalog-prev" class="text-button">← Previous</button><span id="catalog-page"></span><button id="catalog-next" class="text-button">Next →</button></div>
+            <p class="catalog-footnote">A representative global catalog selected by sector and market capitalization, not an official “most popular” ranking. Data availability varies by exchange.</p>
+          </div>
+        </details>
+        <section class="map-section" aria-labelledby="map-title">
+          <div class="section-header"><div><p class="eyebrow">MARKET LANDSCAPE</p><h2 id="map-title">Size is value. Color is momentum.</h2></div><div class="legend"><span>−12%</span><div class="gradient"></div><span>+12%</span><span class="no-data-key">No data</span></div></div>
+          <div class="map-toolbar"><div class="sector-tabs" role="group" aria-label="Heatmap sector"><button data-sector="all" class="active" aria-pressed="true">All companies</button><button data-sector="ai" aria-pressed="false">AI &amp; technology</button><button data-sector="it" aria-pressed="false">IT &amp; software</button><button data-sector="defence" aria-pressed="false">Defence &amp; aerospace</button><button data-sector="medical" aria-pressed="false">Medical &amp; healthcare</button><button data-sector="other" aria-pressed="false">Other industries</button></div><span id="map-sizing">Area = market cap (USD) · Color = daily change</span></div>
+          <div id="heatmap" aria-label="Company heatmap"></div>
+          <p class="map-help">Select a company to explore its history. Use + to compare up to 5 companies. Zoom into a sector to expand smaller companies.</p>
+        </section>
+        <section class="analysis" aria-labelledby="detail-title">
+          <div class="section-header"><div><p class="eyebrow">A CLOSER LOOK</p><h2 id="detail-title">Company performance</h2></div><label class="company-picker">Company <select id="company-select" aria-label="Select company"></select></label></div>
+          <div class="detail-top"><div id="company-detail"></div><div class="range-tabs" role="group" aria-label="Chart period"><button data-range="day">1D</button><button data-range="week">1W</button><button data-range="month" class="active">1M</button><button data-range="year">1Y</button><button data-range="max">MAX</button></div></div>
+          <div id="comparison" class="comparison"></div>
+          <p id="comparison-notice" role="status" hidden></p>
+          <div id="chart" class="chart"></div>
+          <div class="chart-footer"><span id="chart-caption"></span><button id="clear-comparison" hidden>Clear comparison</button></div>
+        </section>
+        <footer><span>STOCK ATLAS <span class="footer-divider">/</span> Perspective, not predictions.</span><p>Quotes: Yahoo Finance · Catalog: CompaniesMarketCap · Delayed prices, not live quotes. Daily = previous trading close; week = 7 calendar days. Not investment advice. Market caps converted to USD; charts use each listing's currency. Private companies excluded.</p></footer>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

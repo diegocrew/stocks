@@ -1,0 +1,73 @@
+name: Update market data and publish dashboard
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Prague 10:00 / 16:00: summer UTC+2, winter UTC+1.
+    # The gate selects the correct pair; GitHub may delay scheduled jobs.
+    - cron: '0 8,14 * * *'
+    - cron: '0 9,15 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stock-dashboard
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      publish: ${{ steps.gate.outputs.run }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+      - id: gate
+        name: Select Prague schedule
+        env:
+          SCHEDULE_CRON: ${{ github.event.schedule }}
+        run: echo "run=$(node scripts/schedule.mjs)" >> "$GITHUB_OUTPUT"
+      - if: steps.gate.outputs.run == 'true'
+        run: npm ci
+      - if: steps.gate.outputs.run == 'true'
+        run: npm run update-portfolios
+      - if: steps.gate.outputs.run == 'true'
+        run: npm run update-data
+      - if: steps.gate.outputs.run == 'true'
+        run: npm test && npm run build
+      - if: steps.gate.outputs.run == 'true'
+        name: Persist snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/
+          if ! git diff --cached --quiet; then
+            git commit -m "data: refresh market snapshot" -m "Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+            git push
+          fi
+      - if: steps.gate.outputs.run == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+  deploy:
+    needs: refresh
+    if: needs.refresh.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
