@@ -31,3 +31,35 @@ A dark, finance-themed dashboard for exploring global stocks and building your o
 - Holdings are checked during each scheduled update. Failed sources retain the last successful holdings with visible warnings; no holdings are invented.
 
 For research only. Not investment advice.
+
+## Native Android app
+
+The Expo TypeScript app lives in [`android app/`](./android%20app/). It uses native
+screens (not a WebView) for the watchlist, company directory, portfolio presets,
+and price-history charts. It reads the public GitHub Pages JSON snapshots;
+no credentials or environment files are required. Watchlists are stored locally
+on the phone. This first native version does not yet include web chart comparisons,
+full holdings/change-event browsing, or market-cap-sized heatmap tiles.
+
+Run these commands in WSL Ubuntu with Node LTS, Java 17 and the Android SDK configured:
+
+```bash
+cd '/mnt/c/github/stocks/android app'
+npm ci
+npm test
+npx tsc --noEmit
+npx expo run:android
+```
+
+For an already installed debug app, run `npx expo start --localhost` and
+`adb reverse tcp:8081 tcp:8081` with the phone connected through ADB.
+Wireless debugging uses `adb pair PHONE_IP:PAIRING_PORT`, followed by
+`adb connect PHONE_IP:CONNECTION_PORT`; the ports are different and can change.
+Enter pairing codes interactively, never in tracked files.
+
+Expo generates the ignored native `android/` directory. After native dependencies
+or app configuration change, rerun `npx expo prebuild --platform android` and
+`npx expo run:android`. Metro also watches the parent repository so the native app
+can reuse the dashboard's market, watchlist, and portfolio helpers.
+Dependencies, native build outputs and `.env*`/`*.env` files are ignored. Never put
+secrets in app code: values embedded in a mobile application are extractable.

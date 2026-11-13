@@ -2,3 +2,7 @@ node_modules/
 dist/
 playwright-report/
 test-results/
+
+# Environment files can contain credentials.
+.env*
+*.env
