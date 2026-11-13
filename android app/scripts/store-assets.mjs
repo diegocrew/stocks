@@ -10,7 +10,7 @@ for (const [file, size] of [['assets/stock-atlas-icon.png', 1024], ['store/play-
   await writeFile(new URL(`../${file}`, import.meta.url), image);
 }
 await writeFile(new URL('../store/feature.png', import.meta.url),
-  await sharp(await readFile(new URL('../store/feature.svg', import.meta.url))).png().toBuffer());
+  await sharp(await readFile(new URL('../store/feature.svg', import.meta.url))).removeAlpha().png().toBuffer());
 
 const escape = value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 const sections = privacySections.map(section => `<section><h2>${escape(section.title)}</h2><p>${escape(section.text)}</p></section>`).join('\n');
