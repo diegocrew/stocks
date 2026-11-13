@@ -11,7 +11,7 @@
     "update-data": "node scripts/update-data.mjs",
     "update-catalog": "node scripts/build-catalog.mjs",
     "update-portfolios": "node scripts/update-portfolios.mjs",
-    "test": "node --test",
+    "test": "node --test test/*.test.js",
     "test:ui": "playwright test"
   },
   "dependencies": {

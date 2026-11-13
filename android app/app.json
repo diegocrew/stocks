@@ -4,27 +4,34 @@
     "slug": "portfolio",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/stock-atlas-icon.png",
     "userInterfaceStyle": "dark",
     "scheme": "stock-atlas",
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "versionCode": 1,
+      "allowBackup": false,
+      "blockedPermissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.RECORD_AUDIO"
+      ],
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#0b111c",
+        "foregroundImage": "./assets/stock-atlas-icon.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.portfolio"
+      "package": "diegocrew.stockatlas"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "./plugins/with-upload-signing.js"
     ]
   }
 }

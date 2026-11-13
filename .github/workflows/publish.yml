@@ -44,6 +44,11 @@ jobs:
       - if: steps.gate.outputs.run == 'true'
         run: npm test && npm run build
       - if: steps.gate.outputs.run == 'true'
+        name: Include Android privacy policy
+        run: |
+          mkdir -p dist/android
+          cp "android app/store/privacy.html" dist/android/privacy.html
+      - if: steps.gate.outputs.run == 'true'
         name: Persist snapshot
         run: |
           git config user.name "github-actions[bot]"

@@ -13,6 +13,11 @@ expo-env.d.ts
 .kotlin/
 *.orig.*
 *.jks
+*.keystore
+*.p12
+signing.env
+credentials.json
+*service-account*.json
 *.p8
 *.p12
 *.key
@@ -40,3 +45,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Local release binaries
+/releases/

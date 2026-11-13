@@ -6,3 +6,13 @@ test-results/
 # Environment files can contain credentials.
 .env*
 *.env
+
+# Android publishing credentials must stay outside the public repository.
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+signing.env
+credentials.json
+*service-account*.json

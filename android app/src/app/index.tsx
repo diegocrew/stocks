@@ -28,6 +28,7 @@ export default function Dashboard() {
       <Link href="/directory" asChild><Pressable style={styles.button}><Text style={styles.buttonText}>+ Companies</Text></Pressable></Link>
     </View>
     <Text style={styles.muted}>Global stocks. Native on your phone.</Text>
+    <Link href="/about" asChild><Pressable style={styles.button}><Text style={styles.buttonText}>Privacy & support</Text></Pressable></Link>
     {store.error ? <View style={styles.card}><Text style={styles.error}>{store.error}</Text><Button label="Retry market data" onPress={() => void store.refresh()} /></View> : null}
     {store.selectionError ? <Text style={styles.error}>{store.selectionError}</Text> : null}
     {store.loading && !store.snapshot ? <ActivityIndicator size="large" color={colors.accent} /> : null}

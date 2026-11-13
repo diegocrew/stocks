@@ -10,6 +10,7 @@ export default function Layout() {
       <Stack.Screen name="index" options={{ title: 'Stock Atlas' }} />
       <Stack.Screen name="directory" options={{ title: 'Company directory' }} />
       <Stack.Screen name="stock/[symbol]" options={{ title: 'Company detail' }} />
+      <Stack.Screen name="about" options={{ title: 'Privacy & support' }} />
     </Stack>
   </MarketProvider>;
 }
