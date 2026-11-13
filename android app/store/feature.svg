@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+  <rect width="1024" height="500" fill="#0b111c"/>
+  <circle cx="220" cy="250" r="152" fill="#151e2d" stroke="#28364b" stroke-width="8"/>
+  <path d="M108 322V260M182 322V212M258 322V174M332 322V138" stroke="#7dd3fc" stroke-width="26" stroke-linecap="round"/>
+  <path d="M104 222L178 172L252 194L336 110" fill="none" stroke="#5cc69d" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="426" y="221" font-family="sans-serif" font-size="66" font-weight="700" fill="#edf3fc">Stock Atlas</text>
+  <text x="430" y="278" font-family="sans-serif" font-size="26" fill="#94a6bf">Your market, at a glance.</text>
+  <text x="430" y="326" font-family="sans-serif" font-size="21" fill="#7dd3fc">Watchlists. Charts. Global stocks.</text>
+</svg>

@@ -1,0 +1,47 @@
+App name: Stock Atlas
+Short description: Explore global stocks, follow watchlists and research portfolio holdings.
+Application ID: diegocrew.stockatlas
+Category suggestion: Finance
+Support email: diego.crew@gmail.com
+Privacy URL: https://diegocrew.github.io/stocks/android/privacy.html
+
+Full description:
+Explore global stock markets with Stock Atlas, a native Android research dashboard.
+
+YOUR WATCHLIST
+Choose up to 30 companies and keep your selections saved on your phone. Browse the company directory and search by company name, ticker or country, with sector filters.
+
+MARKET AT A GLANCE
+See daily and weekly changes, market breadth and market-cap-weighted daily movement for your selected companies. Tap a performance tile to explore its price history.
+
+PRICE HISTORY
+View day, week, month, year and maximum available price history. Tap the chart to inspect individual observations. Quotes display their source timestamps and listing currencies.
+
+DISCLOSED PORTFOLIOS
+Research top disclosed holdings for SPY, QQQ, ARK Innovation and Berkshire Hathaway. Reported holdings may be delayed, and the dashboard covers only the displayed subset, not the fund's total return. Fund and company names identify data; no affiliation or endorsement is implied.
+
+No app account, advertisements, subscription or in-app purchases. Internet access is required for market data. Saved watchlists stay on your device; opening charts requests ticker-specific history from our public data host.
+
+Market data may be delayed, incomplete or temporarily unavailable. Stock Atlas does not provide brokerage services, trade execution, personalized financial advice, or guarantees of investment returns. For research only.
+
+Release notes:
+First native Android release with watchlists, company search, portfolio presets and interactive price-history charts.
+
+Submission checklist (review in Play Console; do not submit declarations blindly):
+- Complete developer identity, contact and device verification.
+- Use Play App Signing. Keep the local upload key and its credential file private and securely backed up.
+- Upload releases/stock-atlas-1.0.0.aab to INTERNAL TESTING first.
+- The standalone APK is for direct testing, not Play Store upload.
+- This build supports ARM64 and x86_64 Android devices.
+- Verify the privacy URL is live after deploying the repository workflow.
+- Two genuine in-app screenshots are supplied in store/screenshots/ (1080x2152). Feature graphic: store/feature.png (1024x500).
+- Store icon: store/play-icon.png (512x512). App name and branding require publisher approval.
+- Confirm target audience; the current privacy policy describes an adult research audience.
+- App access: no login or reviewer credentials needed. Internet connection required.
+- Ads: none in the current app. No payments, lending or trading features.
+- Complete the financial-features declaration using the current form, describing stock-market research rather than brokerage or personalized advice.
+- Review Data safety with the actual hosting-provider practices: HTTPS requests expose IP and requested URLs, including ticker history requests. Do not assume "no data collected" without checking Google's definitions and provider retention/processing.
+- Publisher confirmed that suitable data permissions/licences are held. Keep evidence privately and ensure it covers mobile redistribution and all data sources.
+- Complete content rating and any encryption/export declarations accurately.
+- New personal accounts may require 12 opted-in closed testers for 14 continuous days before applying for production access.
+- Do not publish to production until the release passes device testing and every declaration is reviewed.

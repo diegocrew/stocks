@@ -63,3 +63,29 @@ or app configuration change, rerun `npx expo prebuild --platform android` and
 can reuse the dashboard's market, watchlist, and portfolio helpers.
 Dependencies, native build outputs and `.env*`/`*.env` files are ignored. Never put
 secrets in app code: values embedded in a mobile application are extractable.
+
+### Play Store release
+
+The permanent Android ID is `diegocrew.stockatlas`. Run `npm run store:assets`
+to generate the branded app/store icons and the privacy page from the same
+policy displayed inside the app. The publish workflow includes the policy at
+`https://diegocrew.github.io/stocks/android/privacy.html`; that URL becomes
+available only after these changes are deployed.
+
+In WSL, run `npm run release:android` inside `android app/` to generate both a
+signed Play App Bundle and a standalone APK in the ignored `releases/` folder.
+The release embeds its JavaScript and does not need Metro. It supports ARM64
+and x86_64 devices. The first run creates a private upload key and credential
+file in `android app/.private/signing/` (local to this checkout and ignored by Git).
+The release script refuses to use signing files unless Git ignores them.
+On Windows, restrict this directory's Windows permissions as well; WSL `chmod`
+alone may not protect files on a mounted Windows drive. An earlier copy in
+`~/.config/stock-atlas/`, if present, remains a backup of the same signing key.
+**Back up that entire directory securely. Never share or commit it.**
+Later releases must reuse the upload key and increment `android.versionCode`.
+Missing signing credentials fail release builds instead of using the debug key.
+
+Store text and a submission checklist are in
+[`android app/store/listing.txt`](./android%20app/store/listing.txt).
+Begin with internal testing and review every Play Console declaration;
+having a signed bundle is not approval for production distribution.

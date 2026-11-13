@@ -6,3 +6,19 @@ test-results/
 # Environment files can contain credentials.
 .env*
 *.env
+
+# Private local files must never be tracked in this public repository.
+.private/
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.p8
+*.pem
+*.key
+signing.env
+keystore.properties
+key.properties
+credentials.json
+*service-account*.json
+*service_account*.json
