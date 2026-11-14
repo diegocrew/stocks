@@ -1,5 +1,27 @@
 import { percentChange } from '../src/market.js';
 
+export async function retry(label, operation, wait = ms => new Promise(resolve => setTimeout(resolve, ms))) {
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      console.error(`${label}, attempt ${attempt}/3: ${error.message}`);
+      if (attempt === 3) throw error;
+      await wait(attempt * 2000);
+    }
+  }
+}
+
+export function requireCompleteQuote(quote, symbol) {
+  const missing = [];
+  if (!Number.isFinite(quote?.regularMarketPrice) || quote.regularMarketPrice <= 0) missing.push('price');
+  if (!Number.isFinite(quote?.marketCap) || quote.marketCap <= 0) missing.push('market cap');
+  if (typeof quote?.currency !== 'string' || !quote.currency.trim()) missing.push('currency');
+  if (!(quote?.regularMarketTime instanceof Date) || !Number.isFinite(quote.regularMarketTime.getTime())) missing.push('timestamp');
+  if (missing.length) throw new Error(`Incomplete quote for ${symbol}: ${missing.join(', ')}`);
+  return quote;
+}
+
 export function cleanPoints(quotes, timeZone, intraday = false) {
   const sessionFormat = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' });
   return quotes.filter(quote => Number.isFinite(quote.close) && quote.close > 0)

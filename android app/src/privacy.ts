@@ -1,6 +1,6 @@
 export const SUPPORT_EMAIL = 'diego.crew@gmail.com';
 export const PRIVACY_URL = 'https://diegocrew.github.io/stocks/android/privacy.html';
-export const POLICY_DATE = '2026-11-13';
+export const POLICY_DATE = '2026-11-14';
 export const privacySections = [
   {
     title: 'About Stock Atlas',
@@ -8,11 +8,11 @@ export const privacySections = [
   },
   {
     title: 'Information stored on your phone',
-    text: 'Your selected watchlist tickers are saved in local app storage. We do not send your saved watchlist as a list to our servers. There are no app accounts, advertising SDKs or app analytics. The app does not request access to your contacts, location, microphone, camera, or personal files.',
+    text: 'Your selected watchlist tickers are saved in local app storage and shared locally with the optional home-screen widget. Widget list, appearance settings and last displayed data are also stored on your phone; the widget is visible on your home screen. We do not send your saved watchlist as a list to our servers. There are no app accounts, advertising SDKs or app analytics. The app does not request access to your contacts, location, microphone, camera, or personal files.',
   },
   {
     title: 'Network requests and hosting',
-    text: 'An internet connection is needed to retrieve quotes and holdings from diegocrew.github.io. Opening a chart requests the selected ticker in the history-file URL. GitHub, our hosting provider, receives normal connection information such as your IP address and requested URL and may process it for hosting, security and abuse prevention under its own privacy statement at https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement. We do not use these requests for advertising or create user profiles. Requests use HTTPS.',
+    text: 'An internet connection is needed to retrieve quotes and holdings from diegocrew.github.io. The optional home-screen widget also requests public market and portfolio data periodically. Opening a chart requests the selected ticker in the history-file URL. GitHub, our hosting provider, receives normal connection information such as your IP address and requested URL and may process it for hosting, security and abuse prevention under its own privacy statement at https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement. We do not use these requests for advertising or create user profiles. Requests use HTTPS.',
   },
   {
     title: 'Retention and deletion',

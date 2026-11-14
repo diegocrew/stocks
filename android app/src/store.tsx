@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { AppState, NativeModules, Platform } from 'react-native';
 import { MAX_STOCKS, toggleStock, validateSelection } from '../../src/watchlist.js';
+import { startAutoRefresh } from './auto-refresh';
 import { message, parseCatalog, parsePortfolios, parseSnapshot, requestData, type Catalog, type Portfolio, type Snapshot } from './data';
 
 const STORAGE_KEY = 'stock-atlas.android.watchlist.v1';
@@ -18,6 +20,7 @@ function useMarketStore() {
   const initialized = useRef(false);
   const saving = useRef(false);
   const refreshing = useRef(false);
+  const refreshingPortfolios = useRef(false);
 
   const refresh = useCallback(async () => {
     if (refreshing.current) return;
@@ -49,17 +52,30 @@ function useMarketStore() {
   }, []);
 
   const refreshPortfolios = useCallback(async () => {
+    if (refreshingPortfolios.current) return;
+    refreshingPortfolios.current = true;
     try {
       setPortfolios(parsePortfolios(await requestData('portfolios.json')));
       setPortfolioError('');
     } catch (cause) {
       setPortfolioError(`Could not update portfolios: ${message(cause)}`);
+    } finally {
+      refreshingPortfolios.current = false;
     }
   }, []);
 
-  // Both loaders update React state only after asynchronous I/O.
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { void refresh(); void refreshPortfolios(); }, [refresh, refreshPortfolios]);
+  useEffect(() => startAutoRefresh(AppState, () => { void refresh(); void refreshPortfolios(); }), [refresh, refreshPortfolios]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'android' || !initialized.current || !selected.length) return;
+    const widget = NativeModules.StockAtlasWidget;
+    void Promise.resolve().then(() => {
+      if (!widget) throw new Error('Native widget support is unavailable.');
+      return widget.syncWatchlist(selected) as Promise<void>;
+    }).catch(cause => {
+      setSelectionError(`Could not update the home-screen widget: ${message(cause)}`);
+    });
+  }, [selected]);
 
   async function saveSelection(next: string[]) {
     if (saving.current) return;
@@ -88,7 +104,7 @@ function useMarketStore() {
   return {
     snapshot, catalog, portfolios, selected, portfolioId, setPortfolioId, loading, error,
     selectionError, portfolioError,
-    refresh: () => { setLoading(true); return refresh(); },
+    refresh: () => { if (!refreshing.current) setLoading(true); return refresh(); },
     refreshPortfolios, toggle,
     reset: () => catalog && saveSelection(catalog.defaultSymbols), maxStocks: MAX_STOCKS,
   };

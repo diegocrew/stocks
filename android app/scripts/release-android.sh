@@ -48,6 +48,6 @@ npx expo prebuild --platform android --no-install
     -PreactNativeArchitectures=arm64-v8a,x86_64
 )
 mkdir -p releases
-cp android/app/build/outputs/bundle/release/app-release.aab releases/stock-atlas-1.0.0.aab
-cp android/app/build/outputs/apk/release/app-release.apk releases/stock-atlas-1.0.0.apk
+cp android/app/build/outputs/bundle/release/app-release.aab releases/stock-atlas-1.0.2.aab
+cp android/app/build/outputs/apk/release/app-release.apk releases/stock-atlas-1.0.2.apk
 printf 'Release bundle and standalone APK are in %s/releases/.\n' "$project_root"
