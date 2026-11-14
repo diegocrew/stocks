@@ -1,7 +1,7 @@
 import YahooFinance from 'yahoo-finance2';
 import { readFile, mkdir, writeFile, rename, readdir, unlink } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { cleanPoints, weeklyChange, marketCapCurrency, requireCompleteQuote, retry } from './data-utils.mjs';
+import { cleanPoints, weeklyChange, marketCapCurrency, completeQuote, retry } from './data-utils.mjs';
 import { percentChange } from '../src/market.js';
 import { topHoldings } from '../src/portfolios.js';
 
@@ -49,7 +49,11 @@ async function collect(company) {
       console.warn(`Missing cached history for ${company.symbol}; fetching full listing history.`);
     }
   }
-  const quote = await retry(`${company.symbol} quote`, async () => requireCompleteQuote(await yf.quote(company.symbol), company.symbol));
+  const quote = await retry(`${company.symbol} quote`, async () => completeQuote(
+    await yf.quote(company.symbol),
+    company.symbol,
+    () => yf.quoteSummary(company.symbol, { modules: ['price'] })
+  ));
   const timeZone = quote.exchangeTimezoneName;
   if (!timeZone) throw new Error(`Missing exchange timezone for ${company.symbol}`);
   const getChart = (period1, interval) => retry(`${company.symbol} ${interval}`, () => yf.chart(company.symbol, {
