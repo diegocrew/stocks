@@ -27,8 +27,6 @@ export default function Dashboard() {
       <View><Text style={styles.label}>YOUR MARKET, AT A GLANCE</Text><Text style={styles.title}>Stock Atlas</Text></View>
       <Link href="/directory" asChild><Pressable style={styles.button}><Text style={styles.buttonText}>+ Companies</Text></Pressable></Link>
     </View>
-    <Text style={styles.muted}>Global stocks. Native on your phone.</Text>
-    <Link href="/about" asChild><Pressable style={styles.button}><Text style={styles.buttonText}>Privacy & support</Text></Pressable></Link>
     {store.error ? <View style={styles.card}><Text style={styles.error}>{store.error}</Text><Button label="Retry market data" onPress={() => void store.refresh()} /></View> : null}
     {store.selectionError ? <Text style={styles.error}>{store.selectionError}</Text> : null}
     {store.loading && !store.snapshot ? <ActivityIndicator size="large" color={colors.accent} /> : null}
@@ -70,9 +68,10 @@ export default function Dashboard() {
         {portfolio && <Text style={styles.muted}>{holdings.find(item => item.symbol === stock.symbol)?.weight?.toFixed(2)}% of portfolio</Text>}
         <View style={styles.divider} />
       </View>)}
-      <Text style={styles.muted}>Snapshot: {new Date(store.snapshot.generatedAt).toLocaleString()}</Text>
       {store.snapshot.warnings.map(warning => <Text key={warning} style={styles.error}>{warning}</Text>)}
     </>}
+    {store.snapshot && <Text style={styles.muted}>Last updated: {new Date(store.snapshot.generatedAt).toLocaleString()}</Text>}
     <Text style={styles.muted}>Yahoo Finance quotes may be delayed. Pull down to refresh. For research only, not investment advice.</Text>
+    <Link href="/about" asChild><Pressable style={styles.button}><Text style={styles.buttonText}>Privacy & support</Text></Pressable></Link>
   </ScrollView>;
 }

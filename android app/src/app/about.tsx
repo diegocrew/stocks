@@ -17,7 +17,7 @@ export default function About() {
   }
   return <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
     <Text style={styles.title}>Privacy & support</Text>
-    <Text style={styles.muted}>Stock Atlas 1.0.0 | Effective {POLICY_DATE}</Text>
+    <Text style={styles.muted}>Stock Atlas 1.0.2 | Effective {POLICY_DATE}</Text>
     {privacySections.map(section => <View key={section.title} style={styles.card}>
       <Text style={styles.heading}>{section.title}</Text>
       <Text style={styles.text}>{section.text}</Text>

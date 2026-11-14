@@ -1,7 +1,26 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { chartColor, percentChange, formatPercent, tileColor, historyFor, normalizedSeries, toggleComparison } from '../src/market.js';
-import { cleanPoints, weeklyChange, shouldRunSchedule } from '../scripts/data-utils.mjs';
+import { cleanPoints, weeklyChange, shouldRunSchedule, requireCompleteQuote, retry } from '../scripts/data-utils.mjs';
+
+test('incomplete provider quotes are retried and never accepted as fresh data', async () => {
+  const valid = { regularMarketPrice: 53.62, marketCap: 30200780800, currency: 'EUR', regularMarketTime: new Date('2026-11-13T16:35:13Z') };
+  let attempts = 0;
+  const waits = [];
+  const result = await retry('FRE.DE quote', async () => {
+    attempts++;
+    return requireCompleteQuote(attempts === 1 ? { ...valid, marketCap: null } : valid, 'FRE.DE');
+  }, async ms => { waits.push(ms); });
+  assert.equal(result, valid);
+  assert.equal(attempts, 2);
+  assert.deepEqual(waits, [2000]);
+  attempts = 0;
+  await assert.rejects(retry('FRE.DE quote', async () => {
+    attempts++;
+    return requireCompleteQuote({ ...valid, marketCap: null }, 'FRE.DE');
+  }, async () => {}), /FRE\.DE: market cap/);
+  assert.equal(attempts, 3);
+});
 
 test('chart color follows selected-period endpoints, with neutral for unchanged prices', () => {
   assert.equal(chartColor(100, 110), '#5cc69d');

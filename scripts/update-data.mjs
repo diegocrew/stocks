@@ -1,7 +1,7 @@
 import YahooFinance from 'yahoo-finance2';
 import { readFile, mkdir, writeFile, rename, readdir, unlink } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { cleanPoints, weeklyChange, marketCapCurrency } from './data-utils.mjs';
+import { cleanPoints, weeklyChange, marketCapCurrency, requireCompleteQuote, retry } from './data-utils.mjs';
 import { percentChange } from '../src/market.js';
 import { topHoldings } from '../src/portfolios.js';
 
@@ -24,18 +24,6 @@ try {
   previous = JSON.parse(await readFile(destination, 'utf8'));
 } catch (error) {
   if (error.code !== 'ENOENT') throw error;
-}
-
-async function retry(label, operation) {
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      return await operation();
-    } catch (error) {
-      console.error(`${label}, attempt ${attempt}/3: ${error.message}`);
-      if (attempt === 3) throw error;
-      await new Promise(resolve => setTimeout(resolve, attempt * 2000));
-    }
-  }
 }
 
 const fxCache = new Map([['USD', Promise.resolve(1)]]);
@@ -61,10 +49,7 @@ async function collect(company) {
       console.warn(`Missing cached history for ${company.symbol}; fetching full listing history.`);
     }
   }
-  const quote = await retry(`${company.symbol} quote`, () => yf.quote(company.symbol));
-  if (!(quote?.regularMarketPrice > 0) || !(quote.marketCap > 0) || !quote.currency || !quote.regularMarketTime) {
-    throw new Error(`Incomplete price, market cap, currency or timestamp for ${company.symbol}`);
-  }
+  const quote = await retry(`${company.symbol} quote`, async () => requireCompleteQuote(await yf.quote(company.symbol), company.symbol));
   const timeZone = quote.exchangeTimezoneName;
   if (!timeZone) throw new Error(`Missing exchange timezone for ${company.symbol}`);
   const getChart = (period1, interval) => retry(`${company.symbol} ${interval}`, () => yf.chart(company.symbol, {
