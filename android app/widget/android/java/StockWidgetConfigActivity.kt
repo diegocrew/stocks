@@ -8,21 +8,18 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.SeekBar
-import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import android.content.Intent
 import java.util.Locale
 
 class StockWidgetConfigActivity : Activity() {
-  private val listIds = arrayOf("custom", "spy", "berkshire", "qqq", "arkk")
-  private val listNames = arrayOf("My watchlist", "S&P 500 · SPY", "Berkshire Hathaway", "Nasdaq-100 · QQQ", "ARK Innovation · ARKK")
   private var id = AppWidgetManager.INVALID_APPWIDGET_ID
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,12 +83,14 @@ class StockWidgetConfigActivity : Activity() {
       layout.addView(button)
     }
 
-    label("Choose a list")
-    val spinner = Spinner(this).apply {
-      adapter = ArrayAdapter(this@StockWidgetConfigActivity, android.R.layout.simple_spinner_dropdown_item, listNames)
-      val saved = prefs.getString(StockWidget.key(id, "list"), "custom")
-      setSelection(listIds.indexOf(saved).coerceAtLeast(0))
-      layout.addView(this)
+    label("Choose one or more lists")
+    val selectedBefore = StockWidget.selectedLists(prefs, id)
+    val choices = StockWidget.LISTS.map { (list, name) ->
+      list to CheckBox(this).apply {
+        text = name
+        isChecked = list in selectedBefore
+        layout.addView(this)
+      }
     }
     val opacityLabel = TextView(this).apply { textSize = 16f; setPadding(0, dp(12), 0, 0) }
     layout.addView(opacityLabel)
@@ -112,34 +111,33 @@ class StockWidgetConfigActivity : Activity() {
     colorField("Positive move color", "gain", StockWidget.DEFAULT_GAIN)
     colorField("Negative move color", "loss", StockWidget.DEFAULT_LOSS)
     layout.addView(TextView(this).apply {
-      text = "Tap the gear on the widget to change these settings later. Data updates approximately every 30 minutes and when the watchlist changes."
+      text = "Tap the gear to change lists and colors later. Long-press the widget and resize it to fit more lists. Data updates approximately every 30 minutes."
       setPadding(0, dp(16), 0, dp(16))
     })
+    val widgetId = id
     layout.addView(Button(this).apply {
       text = "Save widget"
       gravity = Gravity.CENTER
       setOnClickListener {
-        val selected = spinner.selectedItemPosition
-        val list = listIds[selected]
-        val edit = prefs.edit()
-          .putString(StockWidget.key(id, "list"), list)
-          .putInt(StockWidget.key(id, "opacity"), opacity.progress)
-          .putString(StockWidget.key(id, "text"), String.format(Locale.US, "#%06X", selectedColors.getValue("text") and 0xffffff))
-          .putString(StockWidget.key(id, "gain"), String.format(Locale.US, "#%06X", selectedColors.getValue("gain") and 0xffffff))
-          .putString(StockWidget.key(id, "loss"), String.format(Locale.US, "#%06X", selectedColors.getValue("loss") and 0xffffff))
-        if (prefs.getString(StockWidget.key(id, "list"), null) != list) {
-          edit.putString(StockWidget.key(id, "title"), listNames[selected])
-            .remove(StockWidget.key(id, "move"))
-            .remove(StockWidget.key(id, "status"))
-            .remove(StockWidget.key(id, "sign"))
+        val selected = choices.filter { it.second.isChecked }.map { it.first }
+        if (selected.isEmpty()) {
+          Toast.makeText(this@StockWidgetConfigActivity, "Choose at least one list.", Toast.LENGTH_LONG).show()
+          return@setOnClickListener
         }
+        val edit = prefs.edit()
+          .putString(StockWidget.key(widgetId, "lists"), org.json.JSONArray(selected).toString())
+          .putInt(StockWidget.key(widgetId, "opacity"), opacity.progress)
+          .putString(StockWidget.key(widgetId, "text"), String.format(Locale.US, "#%06X", selectedColors.getValue("text") and 0xffffff))
+          .putString(StockWidget.key(widgetId, "gain"), String.format(Locale.US, "#%06X", selectedColors.getValue("gain") and 0xffffff))
+          .putString(StockWidget.key(widgetId, "loss"), String.format(Locale.US, "#%06X", selectedColors.getValue("loss") and 0xffffff))
+        if (selected != selectedBefore) edit.putString(StockWidget.key(widgetId, "status"), "Updating selected lists...")
         if (!edit.commit()) {
           Toast.makeText(this@StockWidgetConfigActivity, "Could not save widget settings.", Toast.LENGTH_LONG).show()
           return@setOnClickListener
         }
-        StockWidget.render(this@StockWidgetConfigActivity, id)
-        StockWidget.schedule(this@StockWidgetConfigActivity, id)
-        setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id))
+        StockWidget.render(this@StockWidgetConfigActivity, widgetId)
+        StockWidget.schedule(this@StockWidgetConfigActivity, widgetId)
+        setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId))
         finish()
       }
     }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Stock Atlas",
     "slug": "portfolio",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/stock-atlas-icon.png",
     "userInterfaceStyle": "dark",
@@ -11,7 +11,7 @@
       "supportsTablet": true
     },
     "android": {
-      "versionCode": 3,
+      "versionCode": 4,
       "allowBackup": false,
       "blockedPermissions": [
         "android.permission.READ_EXTERNAL_STORAGE",

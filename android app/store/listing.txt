@@ -18,7 +18,7 @@ PRICE HISTORY
 View day, week, month, year and maximum available price history. Tap the chart to inspect individual observations. Quotes display their source timestamps and listing currencies.
 
 HOME-SCREEN WIDGET
-Follow the daily move of your watchlist or a portfolio. Choose a list, background opacity and text colors separately for each widget.
+Follow the daily moves of any combination of your watchlist and portfolio presets. Choose lists, background opacity and text colors separately for each resizable widget.
 
 DISCLOSED PORTFOLIOS
 Research top disclosed holdings for SPY, QQQ, ARK Innovation and Berkshire Hathaway. Reported holdings may be delayed, and the dashboard covers only the displayed subset, not the fund's total return. Fund and company names identify data; no affiliation or endorsement is implied.
@@ -29,12 +29,12 @@ Market data may be delayed, incomplete or temporarily unavailable. Stock Atlas d
 
 Release notes:
 Refresh market data and portfolio holdings when returning to the app and periodically while it is open.
-Add configurable home-screen widgets for a watchlist or portfolio's daily move.
+Add resizable home-screen widgets showing daily moves for multiple selected lists.
 
 Submission checklist (review in Play Console; do not submit declarations blindly):
 - Complete developer identity, contact and device verification.
 - Use Play App Signing. Keep the local upload key and its credential file private and securely backed up.
-- Upload releases/stock-atlas-1.0.2.aab to INTERNAL TESTING first.
+- Upload releases/stock-atlas-1.0.3.aab to INTERNAL TESTING first.
 - The standalone APK is for direct testing, not Play Store upload.
 - This build supports ARM64 and x86_64 Android devices.
 - Verify the privacy URL is live after deploying the repository workflow.

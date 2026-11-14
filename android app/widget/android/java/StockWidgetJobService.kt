@@ -23,17 +23,21 @@ class StockWidgetJobService : JobService() {
     executor.execute {
       val id = params.extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
       val prefs = StockWidget.preferences(this)
-      val list = prefs.getString(StockWidget.key(id, "list"), "custom") ?: "custom"
+      val lists = StockWidget.selectedLists(prefs, id)
+      val watchlist = prefs.getString(StockWidget.WATCHLIST, null)
       try {
-        val result = fetchSummary(list, prefs.getString(StockWidget.WATCHLIST, null))
+        val results = fetchSummaries(lists, watchlist)
         if (!cancelled.get() && StockWidget.ids(this).contains(id) &&
-          prefs.getString(StockWidget.key(id, "list"), "custom") == list) {
-          val saved = prefs.edit()
-            .putString(StockWidget.key(id, "title"), result.title)
-            .putString(StockWidget.key(id, "move"), result.move)
-            .putString(StockWidget.key(id, "status"), result.status)
-            .putInt(StockWidget.key(id, "sign"), result.sign)
-            .commit()
+          StockWidget.selectedLists(prefs, id) == lists &&
+          ("custom" !in lists || prefs.getString(StockWidget.WATCHLIST, null) == watchlist)) {
+          val edit = prefs.edit()
+          results.forEach { (list, result) ->
+            edit.putString(StockWidget.key(id, "move.$list"), result.move)
+              .putInt(StockWidget.key(id, "sign.$list"), result.sign)
+          }
+          val first = results.first().second
+          val warning = if (results.any { it.second.incomplete }) " · Some data stale or unavailable" else ""
+          val saved = edit.putString(StockWidget.key(id, "status"), "${first.updated}$warning").commit()
           if (!saved) throw IllegalStateException("Could not save widget data")
           StockWidget.render(this, id)
         }
@@ -59,7 +63,7 @@ class StockWidgetJobService : JobService() {
   }
 }
 
-private data class WidgetSummary(val title: String, val move: String, val status: String, val sign: Int)
+private data class WidgetSummary(val move: String, val updated: String, val sign: Int, val incomplete: Boolean)
 private data class WidgetHolding(val symbol: String, val weight: Double)
 
 private fun getJson(file: String): JSONObject {
@@ -81,7 +85,7 @@ private fun getJson(file: String): JSONObject {
 private fun JSONArray.objects(): List<JSONObject> =
   (0 until length()).map { getJSONObject(it) }
 
-private fun fetchSummary(list: String, watchlist: String?): WidgetSummary {
+private fun fetchSummaries(lists: List<String>, watchlist: String?): List<Pair<String, WidgetSummary>> {
   val market = getJson("market.json")
   val timestamp = market.getString("generatedAt")
   if (!Regex("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}").containsMatchIn(timestamp)) {
@@ -89,18 +93,30 @@ private fun fetchSummary(list: String, watchlist: String?): WidgetSummary {
   }
   val stocks = market.getJSONArray("stocks").objects().associateBy { it.getString("symbol") }
   if (stocks.isEmpty()) throw IllegalStateException("Empty market snapshot")
+  val portfolios = if (lists.any { it != "custom" }) getJson("portfolios.json").getJSONArray("portfolios").objects() else emptyList()
+  val symbols = if ("custom" in lists) {
+    if (watchlist != null) JSONArray(watchlist) else getJson("companies.json").getJSONArray("defaultSymbols")
+  } else null
+  val updated = "Last updated ${timestamp.take(16).replace('T', ' ')} UTC"
+  return lists.map { list -> list to summarize(list, stocks, portfolios, symbols, updated) }
+}
+
+private fun summarize(
+  list: String,
+  stocks: Map<String, JSONObject>,
+  portfolios: List<JSONObject>,
+  symbols: JSONArray?,
+  updated: String
+): WidgetSummary {
   var stale = false
-  val title: String
   val holdings: List<WidgetHolding>
   if (list == "custom") {
-    title = "My watchlist"
-    val symbols = if (watchlist != null) JSONArray(watchlist) else getJson("companies.json").getJSONArray("defaultSymbols")
-    if (symbols.length() == 0) throw IllegalStateException("Empty watchlist")
-    holdings = (0 until symbols.length()).map { WidgetHolding(symbols.getString(it), 0.0) }
+    val selected = symbols ?: throw IllegalStateException("Watchlist unavailable")
+    if (selected.length() == 0) throw IllegalStateException("Empty watchlist")
+    holdings = (0 until selected.length()).map { WidgetHolding(selected.getString(it), 0.0) }
   } else {
-    val portfolio = getJson("portfolios.json").getJSONArray("portfolios").objects()
+    val portfolio = portfolios
       .firstOrNull { it.getString("id") == list } ?: throw IllegalStateException("Portfolio not found")
-    title = portfolio.getString("name")
     stale = portfolio.getBoolean("stale")
     holdings = portfolio.getJSONArray("holdings").objects()
       .filter { !it.isNull("symbol") && !it.isNull("weight") && it.getDouble("weight") > 0 }
@@ -125,7 +141,5 @@ private fun fetchSummary(list: String, watchlist: String?): WidgetSummary {
   val result = if (denominator > 0) numerator / denominator else null
   val move = if (result == null) "Unavailable" else String.format(Locale.getDefault(), "%+.2f%%", result)
   val sign = if (result == null || result == 0.0) 0 else if (result > 0) 1 else -1
-  val coverage = "$included/${holdings.size} quotes"
-  val freshness = if (stale) " · Some data stale" else ""
-  return WidgetSummary(title, move, "Last updated ${timestamp.take(16).replace('T', ' ')} UTC · $coverage$freshness", sign)
+  return WidgetSummary(move, updated, sign, stale || included != holdings.size)
 }

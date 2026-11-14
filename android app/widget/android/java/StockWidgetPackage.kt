@@ -31,7 +31,7 @@ class StockWidgetModule(private val context: ReactApplicationContext) : ReactCon
         if (!prefs.edit().putString(StockWidget.WATCHLIST, value).commit()) {
           throw IllegalStateException("Could not save widget watchlist")
         }
-        StockWidget.ids(context).filter { prefs.getString(StockWidget.key(it, "list"), "custom") == "custom" }
+        StockWidget.ids(context).filter { "custom" in StockWidget.selectedLists(prefs, it) }
           .forEach { StockWidget.schedule(context, it) }
       }
       promise.resolve(null)
