@@ -1,7 +1,19 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { chartColor, percentChange, formatPercent, tileColor, historyFor, normalizedSeries, toggleComparison } from '../src/market.js';
-import { cleanPoints, weeklyChange, shouldRunSchedule, requireCompleteQuote, retry } from '../scripts/data-utils.mjs';
+import { cleanPoints, weeklyChange, shouldRunSchedule, completeQuote, requireCompleteQuote, retry } from '../scripts/data-utils.mjs';
+
+test('a missing quote market cap can use a matching-currency provider summary without fabricating data', async () => {
+  const quote = { regularMarketPrice: 53.62, currency: 'EUR', regularMarketTime: new Date('2026-11-13T16:35:13Z') };
+  const result = await completeQuote(quote, 'FRE.DE', async () => ({ price: { marketCap: 30200780800, currency: 'EUR' } }));
+  assert.equal(result.marketCap, 30200780800);
+  assert.equal(result.regularMarketPrice, quote.regularMarketPrice);
+  await assert.rejects(completeQuote(quote, 'FRE.DE', async () => ({ price: { marketCap: 30200780800, currency: 'USD' } })), /matching currency/);
+  await assert.rejects(completeQuote(quote, 'FRE.DE', async () => ({ price: { currency: 'EUR' } })), /matching currency/);
+  await assert.rejects(completeQuote({ ...quote, regularMarketPrice: 0 }, 'FRE.DE', async () => ({ price: { marketCap: 30200780800, currency: 'EUR' } })), /price/);
+  const complete = { ...quote, marketCap: 30200780800 };
+  assert.equal(await completeQuote(complete, 'FRE.DE', async () => { throw new Error('unnecessary request'); }), complete);
+});
 
 test('incomplete provider quotes are retried and never accepted as fresh data', async () => {
   const valid = { regularMarketPrice: 53.62, marketCap: 30200780800, currency: 'EUR', regularMarketTime: new Date('2026-11-13T16:35:13Z') };

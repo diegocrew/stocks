@@ -22,6 +22,17 @@ export function requireCompleteQuote(quote, symbol) {
   return quote;
 }
 
+export async function completeQuote(quote, symbol, fetchSummary) {
+  if (Number.isFinite(quote?.marketCap) && quote.marketCap > 0) return requireCompleteQuote(quote, symbol);
+  const summary = await fetchSummary();
+  const price = summary?.price;
+  if (!Number.isFinite(price?.marketCap) || price.marketCap <= 0 ||
+      typeof quote?.currency !== 'string' || price.currency !== quote.currency) {
+    throw new Error(`Incomplete quote for ${symbol}: market cap unavailable in matching currency`);
+  }
+  return requireCompleteQuote({ ...quote, marketCap: price.marketCap }, symbol);
+}
+
 export function cleanPoints(quotes, timeZone, intraday = false) {
   const sessionFormat = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' });
   return quotes.filter(quote => Number.isFinite(quote.close) && quote.close > 0)
